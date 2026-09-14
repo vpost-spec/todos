@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Project To-Do — Vanessa Post</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --uhs:      #2E6DB4;
+    --uhs-bg:   #EEF4FB;
+    --hhc:      #1A8C65;
+    --hhc-bg:   #E8F7F2;
+    --chs:      #C0442A;
+    --chs-bg:   #FAF0EE;
+    --int:      #6355C7;
+    --int-bg:   #F0EEFB;
+    --text:     #1A1A2E;
+    --muted:    #6B7280;
+    --border:   #E5E7EB;
+    --bg:       #F7F8FA;
+    --surface:  #FFFFFF;
+    --tag-mon-bg: #FEF3C7;  --tag-mon: #92400E;
+    --tag-fup-bg: #FEE2E2;  --tag-fup: #991B1B;
+    --tag-foc-bg: #D1FAE5;  --tag-foc: #065F46;
+    --tag-wk-bg:  #DBEAFE;  --tag-wk:  #1E40AF;
+    --shadow: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 21px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .header-left p { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .header-right { display: flex; gap: 8px; align-items: center; }
+  .stat-pill {
+    font-size: 12px; font-weight: 500; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px;
+  }
+  .stat-pill span { color: var(--text); font-weight: 600; }
+
+  /* LAYOUT */
+  .container { max-width: 860px; margin: 0 auto; padding: 28px 24px 80px; }
+
+  /* ADD FORM */
+  .add-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .add-card h2 {
+    font-size: 11px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
+  }
+  .add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-row input[type=text] {
+    flex: 1; min-width: 200px;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    padding: 9px 14px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--bg); color: var(--text); outline: none;
+    transition: border-color .15s;
+  }
+  .add-row input[type=text]:focus { border-color: #9CA3AF; }
+  .add-row select, .add-row input[type=date] {
+    font-family: 'Inter', sans-serif; font-size: 13px;
+    padding: 9px 12px; border: 1px solid var(--border);
+    border-radius: 8px; background: var(--bg); color: var(--text); outline: none; cursor: pointer;
+  }
+  .add-row select { font-weight: 500; }
+  .btn-add {
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+    padding: 9px 20px; background: var(--text); color: #fff;
+    border: none; border-radius: 8px; cursor: pointer; white-space: nowrap;
+    transition: opacity .15s;
+  }
+  .btn-add:hover { opacity: .85; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex; gap: 6px; margin-bottom: 20px;
+    flex-wrap: wrap; align-items: center;
+  }
+  .filter-bar > span {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .05em; color: var(--muted); margin-right: 4px;
+  }
+  .filter-btn {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+    padding: 5px 13px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--muted); cursor: pointer; transition: all .12s;
+  }
+  .filter-btn:hover { background: var(--text); color: #fff; border-color: var(--text); }
+  .filter-btn.active                { background: var(--text); color: #fff; border-color: var(--text); }
+  .filter-btn.f-uhs.active          { background: var(--uhs);  border-color: var(--uhs); }
+  .filter-btn.f-hhc.active          { background: var(--hhc);  border-color: var(--hhc); }
+  .filter-btn.f-chs.active          { background: var(--chs);  border-color: var(--chs); }
+  .filter-btn.f-int.active          { background: var(--int);  border-color: var(--int); }
+  .clear-done-btn {
+    margin-left: auto; font-family: 'Inter', sans-serif; font-size: 12px;
+    color: var(--muted); background: none; border: none; cursor: pointer;
+    text-decoration: underline; text-underline-offset: 2px;
+  }
+  .clear-done-btn:hover { color: var(--text); }
+
+  /* PROJECT SECTIONS */
+  .project-section { margin-bottom: 22px; }
+  .project-head {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 9px; padding: 0 4px;
+  }
+  .project-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .project-name {
+    font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .project-count { font-size: 11px; color: var(--muted); margin-left: auto; }
+
+  /* TODO ITEMS */
+  .todo-list { display: flex; flex-direction: column; gap: 5px; }
+  .todo-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 11px 16px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 9px;
+    box-shadow: var(--shadow); transition: opacity .15s, border-color .15s;
+  }
+  .todo-item:hover { border-color: #D1D5DB; }
+  .todo-item.done { opacity: .4; }
+  .todo-item.done .todo-text { text-decoration: line-through; color: var(--muted); }
+  .todo-item[data-cat=uhs]      { border-left: 3px solid var(--uhs); }
+  .todo-item[data-cat=hhc]      { border-left: 3px solid var(--hhc); }
+  .todo-item[data-cat=chs]      { border-left: 3px solid var(--chs); }
+  .todo-item[data-cat=internal] { border-left: 3px solid var(--int); }
+
+  .todo-item input[type=checkbox] {
+    margin-top: 2px; width: 16px; height: 16px;
+    cursor: pointer; flex-shrink: 0; accent-color: var(--text);
+  }
+  .todo-body { flex: 1; min-width: 0; }
+  .todo-text { font-size: 14px; line-height: 1.45; color: var(--text); word-break: break-word; }
+  .todo-sub {
+    font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.5;
+    list-style: none; padding: 0;
+  }
+  .todo-sub li::before { content: '↳ '; color: #D1D5DB; }
+  .todo-meta { display: flex; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+  .tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .tag-due { background: var(--tag-mon-bg); color: var(--tag-mon); }
+  .tag-fup { background: var(--tag-fup-bg); color: var(--tag-fup); }
+  .tag-foc { background: var(--tag-foc-bg); color: var(--tag-foc); }
+  .tag-wk  { background: var(--tag-wk-bg);  color: var(--tag-wk);  }
+
+  .del-btn {
+    background: none; border: none; cursor: pointer; font-size: 14px;
+    color: var(--muted); opacity: 0; padding: 0 2px; flex-shrink: 0;
+    margin-top: 1px; transition: opacity .12s, color .12s; line-height: 1;
+  }
+  .todo-item:hover .del-btn { opacity: 1; }
+  .del-btn:hover { color: #DC2626; }
+
+  .empty { font-size: 13px; color: var(--muted); padding: 10px 4px; font-style: italic; }
+
+  /* DONE SECTION */
+  .done-section { margin-top: 32px; }
+  .done-head {
+    font-size: 11px; font-weight: 600; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding: 0 4px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    .container { padding: 18px 12px 60px; }
+    .add-row { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Project To-Do</h1>
+    <p>Vanessa Post · TigerConnect Professional Services</p>
+  </div>
+  <div class="header-right">
+    <div class="stat-pill"><span id="stat-open">0</span> open</div>
+    <div class="stat-pill"><span id="stat-done">0</span> done</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="add-card">
+    <h2>Add a task</h2>
+    <div class="add-row">
+      <input type="text" id="new-text" placeholder="Task description..." onkeydown="if(event.key==='Enter') addTodo()" />
+      <select id="new-cat">
+        <option value="uhs">UHS</option>
+        <option value="hhc">HHC</option>
+        <option value="chs">CHS</option>
+        <option value="internal">Internal</option>
+      </select>
+      <input type="date" id="new-date" title="Due date (optional)" />
+      <button class="btn-add" onclick="addTodo()">Add task</button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <span>Show</span>
+    <button class="filter-btn active"  onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn f-uhs"   onclick="setFilter('uhs',this)">UHS</button>
+    <button class="filter-btn f-hhc"   onclick="setFilter('hhc',this)">HHC</button>
+    <button class="filter-btn f-chs"   onclick="setFilter('chs',this)">CHS</button>
+    <button class="filter-btn f-int"   onclick="setFilter('internal',this)">Internal</button>
+    <button class="clear-done-btn"     onclick="clearDone()">Clear completed</button>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="done-section" id="done-section" style="display:none;">
+    <div class="done-head">Completed</div>
+    <div class="todo-list" id="done-list"></div>
+  </div>
+
+</div>
+
+<script>
+const CATS = [
+  { id:'uhs',      label:'UHS',      color:'#2E6DB4' },
+  { id:'hhc',      label:'HHC',      color:'#1A8C65' },
+  { id:'chs',      label:'CHS',      color:'#C0442A' },
+  { id:'internal', label:'Internal', color:'#6355C7' },
+];
+
+const SEED = [
+  // UHS
+  { cat:'uhs', text:'Plan Valley Hospital — build out using new tools',
+    thisweek:true, followup:false, focus:false, due:null, sub:[] },
+  { cat:'uhs', text:'Plan SWC — Rancho and Corona',
+    thisweek:true, followup:false, focus:false, due:null, sub:[] },
+  { cat:'uhs', text:'Follow up internally with Otjen & Zamore — enterprise PBX contract: what\'s included, what\'s not, and demand a clear SOW',
+    thisweek:true, followup:true, focus:false, due:null, sub:[] },
+  // HHC
+  { cat:'hhc', text:'Transition Scheduling to Casey',
+    thisweek:true, followup:false, focus:false, due:null, sub:[] },
+  { cat:'hhc', text:'Plan next steps for CareConduit deployment',
+    thisweek:true, followup:false, focus:false, due:null, sub:[] },
+  // CHS
+  { cat:'chs', text:'Plan first round — confirm right sites are engaged to get started',
+    thisweek:true, followup:false, focus:false, due:null, sub:[] },
+  // Internal
+  { cat:'internal', text:'PS Onsite — start working with Bryan on the playbook',
+    thisweek:true, followup:false, focus:false, due:null, sub:[] },
+  { cat:'internal', text:'PS Onsite — follow up with Ryan on the clinical playbook',
+    thisweek:true, followup:true, focus:false, due:null, sub:[] },
+  { cat:'internal', text:'On Ramp',
+    thisweek:false, followup:false, focus:false, due:null,
+    sub:['Operationalize PM enablement and documentation','Complete Product Owner training'] },
+];
+
+let todos = [];
+let nextId = 1;
+let activeFilter = 'all';
+
+function init() {
+  const saved = localStorage.getItem('vp-todos-v4');
+  if (saved) {
+    try { const d = JSON.parse(saved); todos = d.todos; nextId = d.nextId; }
+    catch { seedData(); }
+  } else { seedData(); }
+  render();
+}
+
+function seedData() {
+  todos = SEED.map((t, i) => ({ id: i + 1, done: false, ...t }));
+  nextId = todos.length + 1;
+}
+
+function persist() {
+  localStorage.setItem('vp-todos-v4', JSON.stringify({ todos, nextId }));
+}
+
+function addTodo() {
+  const text = document.getElementById('new-text').value.trim();
+  if (!text) return;
+  todos.unshift({
+    id: nextId++, text,
+    cat:      document.getElementById('new-cat').value,
+    due:      document.getElementById('new-date').value || null,
+    sub:      [],
+    done:     false,
+    thisweek: false,
+    followup: false,
+    focus:    false,
+  });
+  document.getElementById('new-text').value = '';
+  document.getElementById('new-date').value = '';
+  persist(); render();
+  document.getElementById('new-text').focus();
+}
+
+function toggleDone(id) {
+  const t = todos.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  persist(); render();
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(t => t.id !== id);
+  persist(); render();
+}
+
+function clearDone() {
+  todos = todos.filter(t => !t.done);
+  persist(); render();
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function fmtDate(iso) {
+  if (!iso) return null;
+  const [,m,d] = iso.split('-');
+  return `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${+d}`;
+}
+
+function itemHTML(t) {
+  const tags = [];
+  if (t.thisweek && !t.due) tags.push(`<span class="tag tag-wk">This week</span>`);
+  if (t.followup)            tags.push(`<span class="tag tag-fup">Follow-up</span>`);
+  if (t.focus)               tags.push(`<span class="tag tag-foc">Focus block</span>`);
+  if (t.due)                 tags.push(`<span class="tag tag-due">Due ${fmtDate(t.due)}</span>`);
+  const meta = tags.length ? `<div class="todo-meta">${tags.join('')}</div>` : '';
+  const sub  = t.sub && t.sub.length
+    ? `<ul class="todo-sub">${t.sub.map(s=>`<li>${s}</li>`).join('')}</ul>` : '';
+  return `<div class="todo-item${t.done?' done':''}" data-cat="${t.cat}">
+    <input type="checkbox" ${t.done?'checked':''} onchange="toggleDone(${t.id})" />
+    <div class="todo-body">
+      <div class="todo-text">${t.text.replace(/</g,'&lt;')}</div>
+      ${sub}${meta}
+    </div>
+    <button class="del-btn" onclick="deleteTodo(${t.id})" title="Remove">✕</button>
+  </div>`;
+}
+
+function render() {
+  const visible = activeFilter === 'all' ? todos : todos.filter(t => t.cat === activeFilter);
+  const active  = visible.filter(t => !t.done);
+  const done    = visible.filter(t => t.done);
+
+  document.getElementById('stat-open').textContent = todos.filter(t=>!t.done).length;
+  document.getElementById('stat-done').textContent = todos.filter(t=>t.done).length;
+
+  document.getElementById('sections').innerHTML = CATS.map(cat => {
+    if (activeFilter !== 'all' && activeFilter !== cat.id) return '';
+    const items = active.filter(t => t.cat === cat.id);
+    const rows  = items.length ? items.map(itemHTML).join('') : `<div class="empty">Nothing here yet</div>`;
+    return `<div class="project-section">
+      <div class="project-head">
+        <div class="project-dot" style="background:${cat.color}"></div>
+        <span class="project-name">${cat.label}</span>
+        <span class="project-count">${items.length} open</span>
+      </div>
+      <div class="todo-list">${rows}</div>
+    </div>`;
+  }).join('');
+
+  const ds = document.getElementById('done-section');
+  if (!done.length) { ds.style.display='none'; return; }
+  ds.style.display = 'block';
+  document.getElementById('done-list').innerHTML = done.map(itemHTML).join('');
+}
+
+init();
+</script>
+</body>
+</html>
